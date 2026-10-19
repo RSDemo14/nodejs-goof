@@ -325,6 +325,18 @@ function findUser(auth) {
     u.name === auth.name &&
     u.password === auth.password);
 }
+
+function normalizeMessage(input, userName) {
+  const source = (input && typeof input === 'object' && !Array.isArray(input)) ? input : {};
+
+  return {
+    icon: typeof source.icon === 'string' ? source.icon : '👋',
+    text: typeof source.text === 'string' ? source.text : '',
+    id: lastId++,
+    timestamp: Date.now(),
+    userName: userName,
+  };
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 exports.chat = {
@@ -339,16 +351,7 @@ exports.chat = {
       return;
     }
 
-    const message = {
-      // Default message icon. Cen be overwritten by user.
-      icon: '👋',
-    };
-
-    _.merge(message, req.body.message, {
-      id: lastId++,
-      timestamp: Date.now(),
-      userName: user.name,
-    });
+    const message = normalizeMessage(req.body.message, user.name);
 
     messages.push(message);
     res.send({ ok: true });
